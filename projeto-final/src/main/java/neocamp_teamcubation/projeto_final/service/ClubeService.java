@@ -17,10 +17,6 @@ public class ClubeService {
     private final ClubeRepository clubeRepository;
     private final LocaleResolver localeResolver;
 
-    public Clube save(Clube clube) {
-        return clubeRepository.save(clube);
-    }
-
     public Clube cadastrarClube(Clube clube) {
         validateClube(clube);
 
