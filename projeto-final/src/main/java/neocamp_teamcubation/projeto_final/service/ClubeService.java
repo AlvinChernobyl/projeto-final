@@ -6,16 +6,22 @@ import lombok.RequiredArgsConstructor;
 import neocamp_teamcubation.projeto_final.entity.Clube;
 import neocamp_teamcubation.projeto_final.repository.ClubeRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.LocaleResolver;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ClubeService {
 
     private final ClubeRepository clubeRepository;
-    private final LocaleResolver localeResolver;
+
+    public List<Clube> clubeList(String nome) {
+        if (nome == null || nome.isBlank()) {
+            return clubeRepository.findAll();
+        }
+        return clubeRepository.findByNomeContainingIgnoreCase(nome);
+    }
 
     public Clube cadastrarClube(Clube clube) {
         validateClube(clube);

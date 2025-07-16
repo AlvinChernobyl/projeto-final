@@ -10,12 +10,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/clubes")
 @RequiredArgsConstructor
 public class ClubeController {
 
     private final ClubeService clubeService;
+
+    @GetMapping
+    public ResponseEntity<List<Clube>> listarClubes(@RequestParam(required = false) String nome) {
+        List<Clube> clubes = clubeService.clubeList(nome);
+        return ResponseEntity.ok(clubes);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarId(@PathVariable Long id) {
@@ -40,5 +48,4 @@ public class ClubeController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
 }
