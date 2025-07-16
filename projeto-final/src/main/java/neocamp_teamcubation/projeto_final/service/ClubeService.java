@@ -18,7 +18,7 @@ public class ClubeService {
 
     public List<Clube> clubeList(String nome) {
         if (nome == null || nome.isBlank()) {
-            return clubeRepository.findAll();
+            return clubeRepository.findByAtivoTrue();
         }
         return clubeRepository.findByNomeContainingIgnoreCase(nome);
     }
@@ -36,8 +36,7 @@ public class ClubeService {
     }
 
     public Clube buscarId(Long id) {
-        return clubeRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Clube náo encontrado"));
+        return clubeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Clube náo encontrado"));
     }
 
     private void validateClube(Clube clube) {
@@ -53,4 +52,33 @@ public class ClubeService {
             throw new ValidationException("data de criacao invalida");
         }
     }
+
+    public Clube editarClube(Long id, Clube novoClube) {
+        Clube clubeExistente = clubeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("não encontrado"));
+
+        validateClube(novoClube);
+
+        boolean conflito = clubeRepository.existsByNomeAndSiglaEstado(novoClube.getNome(), novoClube.getSiglaEstado());
+
+        if (conflito && (!novoClube.getNome().equals(clubeExistente.getNome()) || !novoClube.getSiglaEstado().equals(clubeExistente.getSiglaEstado()))) {
+            throw new IllegalArgumentException("nome e estado ja existente");
+        }
+
+        clubeExistente.setNome(novoClube.getNome());
+        clubeExistente.setSiglaEstado(novoClube.getSiglaEstado());
+        clubeExistente.setDataCriacao(novoClube.getDataCriacao());
+
+        return clubeRepository.save(clubeExistente);
+    }
+
+    public void apagarClube(Long id) {
+        Clube clube = clubeRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("n encontrado"));
+        if (Boolean.FALSE.equals(clube.getAtivo())) {
+            return;
+        }
+        clube.setAtivo(false);
+        clubeRepository.save(clube);
+    }
+
+
 }

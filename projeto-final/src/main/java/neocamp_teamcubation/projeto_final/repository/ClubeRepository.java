@@ -10,6 +10,7 @@ import java.util.List;
 public interface ClubeRepository extends JpaRepository<Clube, Long> {
 
     List<Clube> findByNomeContainingIgnoreCase(String nome);
+    List<Clube> findByAtivoTrue();
 
     boolean existsByNomeAndSiglaEstado(String nome, String siglaEstado);
 }

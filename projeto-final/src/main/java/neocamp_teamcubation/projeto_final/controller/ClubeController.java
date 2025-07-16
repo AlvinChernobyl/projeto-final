@@ -48,4 +48,26 @@ public class ClubeController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody @Valid Clube clube) {
+        try {
+            Clube atualizado = clubeService.editarClube(id, clube);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ValidationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> excluir(@PathVariable Long id) {
+        try {
+            clubeService.apagarClube(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+    }
 }
