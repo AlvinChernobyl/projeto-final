@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "clubes", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"nome", "sigla_estado"})
-    })
+})
 
 @Data
 @NoArgsConstructor
