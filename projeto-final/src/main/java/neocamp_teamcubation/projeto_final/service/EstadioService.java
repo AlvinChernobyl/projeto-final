@@ -1,7 +1,6 @@
 package neocamp_teamcubation.projeto_final.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import neocamp_teamcubation.projeto_final.entity.Estadio;
 import neocamp_teamcubation.projeto_final.repository.EstadioRepo;

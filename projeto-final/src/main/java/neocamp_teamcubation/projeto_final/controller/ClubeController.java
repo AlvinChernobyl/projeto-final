@@ -2,7 +2,6 @@ package neocamp_teamcubation.projeto_final.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import neocamp_teamcubation.projeto_final.entity.Clube;
 import neocamp_teamcubation.projeto_final.service.ClubeService;
@@ -34,7 +33,6 @@ public class ClubeController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
-
     }
 
     @PostMapping

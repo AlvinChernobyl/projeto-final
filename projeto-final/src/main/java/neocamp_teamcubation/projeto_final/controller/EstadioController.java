@@ -3,7 +3,6 @@ package neocamp_teamcubation.projeto_final.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import neocamp_teamcubation.projeto_final.entity.Estadio;
-import neocamp_teamcubation.projeto_final.repository.EstadioRepo;
 import neocamp_teamcubation.projeto_final.service.EstadioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
