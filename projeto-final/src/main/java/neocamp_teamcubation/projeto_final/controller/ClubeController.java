@@ -44,8 +44,6 @@ public class ClubeController {
             return ResponseEntity.status(201).body(clubeSalvo);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(e.getMessage());
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -55,8 +53,6 @@ public class ClubeController {
             Clube atualizado = clubeService.editarClube(id, clube);
             return ResponseEntity.ok(atualizado);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ValidationException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

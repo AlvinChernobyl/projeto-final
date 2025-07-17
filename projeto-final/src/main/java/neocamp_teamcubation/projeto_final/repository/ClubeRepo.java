@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ClubeRepository extends JpaRepository<Clube, Long> {
+public interface ClubeRepo extends JpaRepository<Clube, Long> {
 
     List<Clube> findByNomeContainingIgnoreCase(String nome);
     List<Clube> findByAtivoTrue();
