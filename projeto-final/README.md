@@ -147,3 +147,4 @@ DELETE /partidas/1
 Projeto criado por **Diogo Pereira Dias**
 
 [![Linkedin Badge](https://img.shields.io/badge/-Diogo%20Pereira%20Dias-blue?style=flat-square&logo=Linkedin&logoColor=white&link=https://www.linkedin.com/in/diogopereiradias/)](https://www.linkedin.com/in/diogo-dias-07168a156/)
+ em cooperação com a equipe do Neocamp - TeamCubation.
