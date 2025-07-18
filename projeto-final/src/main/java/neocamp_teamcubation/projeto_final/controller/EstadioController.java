@@ -7,12 +7,20 @@ import neocamp_teamcubation.projeto_final.service.EstadioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/estadios")
 @RequiredArgsConstructor
 public class EstadioController {
 
     private final EstadioService estadioService;
+
+    @GetMapping
+    public ResponseEntity<List<Estadio>> buscarTodos() {
+        List<Estadio> lista = estadioService.buscarTodos();
+        return ResponseEntity.ok(lista);
+    }
 
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody @Valid Estadio estadio) {

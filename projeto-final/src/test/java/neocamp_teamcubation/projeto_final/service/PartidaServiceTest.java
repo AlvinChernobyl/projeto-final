@@ -8,11 +8,9 @@ import neocamp_teamcubation.projeto_final.repository.ClubeRepo;
 import neocamp_teamcubation.projeto_final.repository.EstadioRepo;
 import neocamp_teamcubation.projeto_final.repository.PartidaRepo;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.input.CharAppender;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.verification.VerificationMode;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 
@@ -20,7 +18,6 @@ import static org.mockito.Mockito.times;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -196,6 +193,4 @@ class PartidaServiceTest {
 
         assertEquals("n encontrada", exception.getMessage());
     }
-
-
 }

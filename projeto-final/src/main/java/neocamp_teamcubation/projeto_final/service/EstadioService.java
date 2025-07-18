@@ -6,6 +6,8 @@ import neocamp_teamcubation.projeto_final.entity.Estadio;
 import neocamp_teamcubation.projeto_final.repository.EstadioRepo;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EstadioService {
@@ -20,12 +22,14 @@ public class EstadioService {
         if (estadioRepo.existsByNome(estadio.getNome())) {
             throw new IllegalArgumentException("Já existe um estádio com esse nome.");
         }
-
-
         return estadioRepo.save(estadio);
     }
 
     public Estadio buscarPorId(Long id) {
         return estadioRepo.findById(id).orElseThrow(() -> new EntityNotFoundException("Estadio foud"));
+    }
+
+    public List<Estadio> buscarTodos() {
+        return estadioRepo.findAll();
     }
 }
