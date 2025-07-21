@@ -40,8 +40,4 @@ public class Partida {
     @Min(value = 0, message = "Gols n pode ser negativo")
     private int golsVisitante;
 
-
-
-
-
 }

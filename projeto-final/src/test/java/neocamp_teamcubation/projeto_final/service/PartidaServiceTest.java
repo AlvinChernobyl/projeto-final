@@ -143,7 +143,14 @@ class PartidaServiceTest {
         nova.setGolsMandante(2);
         nova.setGolsVisitante(1);
 
+        Clube clube1 = new Clube(); clube1.setId(1L);
+        Clube clube2 = new Clube(); clube2.setId(2L);
+        Estadio estadio = new Estadio(); estadio.setId(1L);
+
         when(partidaRepo.findById(1L)).thenReturn(Optional.of(antiga));
+        when(clubeRepo.findById(1L)).thenReturn(Optional.of(clube1));
+        when(clubeRepo.findById(2L)).thenReturn(Optional.of(clube2));
+        when(estadioRepo.findById(1L)).thenReturn(Optional.of(estadio));
         when(partidaRepo.save(any())).thenReturn(nova);
 
         Partida atualizada = partidaService.atualizar(1L, nova);
@@ -151,6 +158,7 @@ class PartidaServiceTest {
         assertEquals(2, atualizada.getGolsMandante());
         assertEquals(1, atualizada.getGolsVisitante());
     }
+
 
     @Test
     public void falharAoAtualizarPartidaInexistente() {

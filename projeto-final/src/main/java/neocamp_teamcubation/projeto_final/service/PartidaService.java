@@ -11,6 +11,7 @@ import neocamp_teamcubation.projeto_final.repository.PartidaRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -63,17 +64,25 @@ public class PartidaService {
         Partida partidaExistente = partidaRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("n encontrada"));
 
-        if (nova.getMandante().getId() == nova.getVisitante().getId()) {
-            throw new IllegalArgumentException("devem ser diferente");
+        if (Objects.equals(nova.getMandante().getId(), nova.getVisitante().getId())) {
+            throw new IllegalArgumentException("Mandante e visitante devem ser diferentes");
         }
 
-        partidaExistente.setMandante(nova.getMandante());
-        partidaExistente.setVisitante(nova.getVisitante());
-        partidaExistente.setEstadio(nova.getEstadio());
+        Clube mandante = clubeRepo.findById(nova.getMandante().getId())
+                .orElseThrow(() -> new EntityNotFoundException("n encontrado"));
+        Clube visitante = clubeRepo.findById(nova.getVisitante().getId())
+                .orElseThrow(() -> new EntityNotFoundException("n encontrado"));
+        Estadio estadio = estadioRepo.findById(nova.getEstadio().getId())
+                .orElseThrow(() -> new EntityNotFoundException("n encontrado"));
+
+        partidaExistente.setMandante(mandante);
+        partidaExistente.setVisitante(visitante);
+        partidaExistente.setEstadio(estadio);
         partidaExistente.setDataHora(nova.getDataHora());
         partidaExistente.setGolsMandante(nova.getGolsMandante());
         partidaExistente.setGolsVisitante(nova.getGolsVisitante());
 
         return partidaRepo.save(partidaExistente);
     }
+
 }

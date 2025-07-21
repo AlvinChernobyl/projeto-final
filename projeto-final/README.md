@@ -56,9 +56,6 @@ Ou rode direto pela IDE clicando em `Run`.
 
 #### ✅ Criar Clube (POST `/clubes`)
 ```json
-POST /clubes
-Content-Type: application/json
-
 {
   "nome": "Remo",
   "siglaEstado": "PA",
@@ -81,15 +78,18 @@ DELETE /clubes/1
 ```
 <img src="imagens/print-insomnia03.png" alt="Teste no Insomnia" width="250"/>
 
+#### 🔍 Buscar todos clubes (GET `/clubes`)
+```http
+GET /clubes
+```
+<img src="imagens/print-insomnia06.png" alt="Teste no Insomnia" width="250"/>
+
 ---
 
 ### 🏟️ ESTÁDIO
 
 #### ✅ Criar Estádio (POST `/estadios`)
 ```json
-POST /estadios
-Content-Type: application/json
-
 {
   "nome": "Mangueirão",
   "cidade": "Belém",
@@ -110,28 +110,36 @@ GET /estadios
 
 #### ✅ Criar Partida (POST `/partidas`)
 ```json
-POST /partidas
-Content-Type: application/json
 
 {
   "mandante": { "id": 1 },
   "visitante": { "id": 2 },
   "estadio": { "id": 1 },
+ "golsMandante": 2,
+ "golsVisitante": 1,
   "dataHora": "2025-08-01T16:00:00"
 }
 ```
+<img src="imagens/print-insomnia06.png" alt="Teste no Insomnia" width="250"/>
+...
 
 #### ✏️ Atualizar Partida (PUT `/partidas/{id}`)
 ```json
-PUT /partidas/1
-Content-Type: application/json
-
 {
   "mandante": { "id": 2 },
   "visitante": { "id": 1 },
   "estadio": { "id": 1 },
+  "golsMandante": 3,
+  "golsVisitante": 2,
   "dataHora": "2025-08-02T18:00:00"
 }
+```
+<img src="imagens/print-insomnia07.png" alt="Teste no Insomnia" width="250"/>
+
+...
+
+```http
+
 ```
 
 #### ❌ Remover partida
