@@ -10,8 +10,11 @@ import neocamp_teamcubation.projeto_final.repository.EstadioRepo;
 import neocamp_teamcubation.projeto_final.repository.PartidaRepo;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -84,5 +87,35 @@ public class PartidaService {
 
         return partidaRepo.save(partidaExistente);
     }
+
+    public List<Partida> buscarComFiltros(
+            String nomeMandante, String nomeVisitante, Long estadioId,
+            LocalDate dataInicial, LocalDate dataFinal, Boolean futuro) {
+
+        List<Partida> todas = partidaRepo.findAll();
+
+        return todas.stream()
+                .filter(p -> nomeMandante == null || p.getMandante().getNome().toLowerCase().contains(
+                        nomeMandante.toLowerCase()))
+                .filter(p -> nomeVisitante == null || p.getVisitante().getNome().toLowerCase().contains(
+                        nomeVisitante.toLowerCase()))
+                .filter(p -> estadioId == null || Objects.equals(p.getEstadio().getId(), estadioId))
+                .filter(p -> {
+                    if (dataInicial != null && dataFinal != null) {
+                        return !p.getDataHora().toLocalDate().isBefore(dataInicial)
+                                && !p.getDataHora().toLocalDate().isAfter(dataFinal);
+                    }
+                    if (dataInicial != null) {
+                        return !p.getDataHora().toLocalDate().isBefore(dataInicial);
+                    }
+                    if (dataFinal != null) {
+                        return !p.getDataHora().toLocalDate().isAfter(dataFinal);
+                    }
+                    return true;
+                })
+                .filter(p -> futuro == null || (futuro && p.getDataHora().isAfter(LocalDateTime.now())))
+                .collect(Collectors.toList());
+    }
+
 
 }

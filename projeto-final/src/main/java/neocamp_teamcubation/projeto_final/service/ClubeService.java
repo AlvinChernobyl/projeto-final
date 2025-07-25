@@ -2,6 +2,8 @@ package neocamp_teamcubation.projeto_final.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import neocamp_teamcubation.projeto_final.DTO.ClubeCepDTO;
+import neocamp_teamcubation.projeto_final.DTO.ViaCepDTO;
 import neocamp_teamcubation.projeto_final.entity.Clube;
 import neocamp_teamcubation.projeto_final.repository.ClubeRepo;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.util.List;
 public class ClubeService {
 
     private final ClubeRepo clubeRepo;
+    private final ViaCepService viaCepService;
 
     public List<Clube> clubeList(String nome) {
         if (nome == null || nome.isBlank()) {
@@ -78,4 +81,20 @@ public class ClubeService {
         clube.setAtivo(false);
         clubeRepo.save(clube);
     }
+
+    public Clube cadastrarComCep(ClubeCepDTO dto) {
+        ViaCepDTO dados = viaCepService.consultarCep(dto.getCep());
+
+        Clube clube = new Clube();
+        clube.setNome(dto.getNome());
+        clube.setSiglaEstado(dados.getUf());
+        clube.setAtivo(dto.isAtivo());
+        clube.setDataCriacao(dto.getDataCriacao() != null ? dto.getDataCriacao() : LocalDate.now());
+        clube.setLogradouro(dados.getLogradouro());
+        clube.setBairro(dados.getBairro());
+        clube.setCidade(dados.getLocalidade());
+
+        return clubeRepo.save(clube);
+    }
+
 }
