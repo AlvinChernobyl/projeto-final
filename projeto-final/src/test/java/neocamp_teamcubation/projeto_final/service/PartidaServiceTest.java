@@ -66,7 +66,7 @@ class PartidaServiceTest {
         when(estadioRepo.findById(1L)).thenReturn(Optional.of(estadio));
         when(partidaRepo.save(any())).thenReturn(partida);
 
-        Partida resultado = partidaService.cadastrarPartida(partida);
+        Partida resultado = partidaService.criarEPublicar(partida);
 
         assertNotNull(resultado);
         assertEquals(1, resultado.getGolsMandante());
@@ -95,7 +95,7 @@ class PartidaServiceTest {
         when(estadioRepo.findById(99L)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(EntityNotFoundException.class, () -> {
-            partidaService.cadastrarPartida(partida);
+            partidaService.criarEPublicar(partida);
         });
 
         assertEquals("Estádio n encontrado", exception.getMessage());

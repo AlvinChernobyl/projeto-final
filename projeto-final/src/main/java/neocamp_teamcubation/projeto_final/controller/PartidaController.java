@@ -41,7 +41,7 @@ public class PartidaController {
     @PostMapping
     public ResponseEntity<?> cadastrar(@RequestBody Partida partida) {
         try {
-            Partida nova = partidaService.cadastrarPartida(partida);
+            Partida nova = partidaService.criarEPublicar(partida);
             return ResponseEntity.status(201).body(nova);
         } catch (IllegalArgumentException | EntityNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
