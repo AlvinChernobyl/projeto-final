@@ -1,19 +1,28 @@
 package bot;
 
+import bot.services.GeoWeatherService;
+import bot.services.GeoWeatherService.Day;
+import bot.services.GeoWeatherService.Place;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MessageListener extends ListenerAdapter {
 
-    private enum State { CONFIRM_HELLO, CONFIRM_TRY, AWAIT_LOCATION }
+    private enum State { ASK_CITY_FOR_WEATHER }
+    private enum PromptKind { NOW, TOMORROW, WEEK }
 
     private static final long TIMEOUT_MS = 120_000L;
+
     private static final ConcurrentHashMap<ConvKey, Session> SESSIONS = new ConcurrentHashMap<>();
+    private static final Map<String, String> CITY_PREF = new ConcurrentHashMap<>();
+
+    private final GeoWeatherService weather = new GeoWeatherService();
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
@@ -24,103 +33,153 @@ public class MessageListener extends ListenerAdapter {
         final ConvKey key = new ConvKey(userId, channelId);
 
         String content = event.getMessage().getContentRaw();
+        if (content == null) content = "";
         content = content.trim();
         String lower = content.toLowerCase();
 
         Session sess = SESSIONS.get(key);
         if (sess != null && sess.expiresAt < Instant.now().toEpochMilli()) {
-            SESSIONS.remove(key);
-            sess = null;
-        }
-
-        if (lower.equals("!hello")) {
-            setState(key, State.CONFIRM_HELLO);
-            String where = event.isFromGuild() ? ("#" + event.getChannel().getName()) : "DM";
-            event.getChannel().sendMessage(
-                    "Você me chamou? \uD83D\uDE42 ( " + where + ")\n" +
-                            "Responda **sim** para continuar ou **não** para encerrar.\n"
-            ).queue();
-            return;
+            SESSIONS.remove(key); sess = null;
         }
 
         if (lower.equals("cancelar")) {
             SESSIONS.remove(key);
-            event.getChannel().sendMessage("Cancelado. Se quiser de novo, mande **!hello**.").queue();
+            event.getChannel().sendMessage("blz, cancelado.").queue();
             return;
         }
 
-        if (sess == null) return;
 
-        switch (sess.state) {
-            case CONFIRM_HELLO: {
-                if (isNo(lower)) {
-                    SESSIONS.remove(key);
-                    event.getChannel().sendMessage("Suave, tô por aqui. Até logo!").queue();
-                    return;
-                }
-                if (isYes(lower)) {
-                    setState(key, State.CONFIRM_TRY);
-                    event.getChannel().sendMessage(
-                            "Top! Vamos de desafio: **Eu consigo adivinhar onde você mora com uma pergunta**. Quer tentar?"
-                    ).queue();
-                    return;
-                }
-
-                event.getChannel().sendMessage("Responda **sim** ou **não**").queue();
+        if (lower.startsWith("!tempo salvar ")) {
+            String city = content.substring("!tempo salvar ".length()).trim();
+            if (city.isBlank()) {
+                event.getChannel().sendMessage("uso: !tempo salvar <cidade>").queue();
                 return;
             }
-            case CONFIRM_TRY: {
-                if (isNo(lower)) {
-                    SESSIONS.remove(key);
-                    event.getChannel().sendMessage("Ate logo").queue();
-                    return;
-                }
-                if (isYes(lower)) {
-                    setState(key, State.AWAIT_LOCATION);
-                    event.getChannel().sendMessage("**Onde você mora?**").queue();
-                    return;
-                }
-                event.getChannel().sendMessage("Manda **sim** para jogar  ou **não** para sair.").queue();
-                return;
+            CITY_PREF.put(userId, city);
+            event.getChannel().sendMessage("ok, salvei sua cidade " + city).queue();
+            System.out.println("[debug] cidade salva pra " + userId + ": " + city);
+            return;
+        }
+
+        if (lower.equals("!tempo agora")) {
+            String city = CITY_PREF.get(userId);
+            if (city == null) {
+                askCity(key, event, "vc ainda nao salvou cidade. qual cidade quer ver agora?");
+            } else {
+                handleNow(event, city);
             }
-            case AWAIT_LOCATION: {
-                if (!content.isBlank() && !content.startsWith("!")) {
-                    SESSIONS.remove(key);
-                    event.getChannel().sendMessage("Nossa! Você mora em **'" + content + "'**. Foi fácil, viu?").queue();
-                    event.getChannel().sendMessage("Quer brincar de novo? Digite **!hello**.").queue();
+            return;
+        }
+
+        if (lower.equals("!tempo amanha")) {
+            String city = CITY_PREF.get(userId);
+            if (city == null) {
+                askCity(key, event, "vc ainda nao salvou cidade. qual cidade quer ver amanha?");
+            } else {
+                handleTomorrow(event, city);
+            }
+            return;
+        }
+
+        if (lower.startsWith("!tempo")) {
+            String arg = content.length() > 6 ? content.substring(6).trim() : "";
+            if (arg.isEmpty()) {
+                String city = CITY_PREF.get(userId);
+                if (city == null) askCity(key, event, "qual cidade vc quer ver o tempo? (pode digitar 'cancelar')");
+                else handleNow(event, city);
+            } else {
+                handleNow(event, arg);
+            }
+            return;
+        }
+
+        if (sess != null && sess.state == State.ASK_CITY_FOR_WEATHER) {
+            if (!content.isBlank() && !content.startsWith("!")) {
+                SESSIONS.remove(key);
+                String city = content;
+                switch (sess.promptKind) {
+                    case NOW:      handleNow(event, city); break;
+                    case TOMORROW: handleTomorrow(event, city); break;
+                    case WEEK:     handleWeek(event, city); break;
                 }
             }
         }
     }
 
-    private static boolean isYes(String lower) {
-        return lower.equals("sim") || lower.equals("s");
+
+    private void askCity(ConvKey key, MessageReceivedEvent event, String msg) {
+        SESSIONS.put(key, new Session(State.ASK_CITY_FOR_WEATHER, Instant.now().toEpochMilli() + TIMEOUT_MS, kindFromMsg(msg)));
+        event.getChannel().sendMessage(msg).queue();
     }
 
-    private static boolean isNo(String lower) {
-        return lower.equals("não") || lower.equals("nao") || lower.equals("n");
+    private PromptKind kindFromMsg(String msg) {
+        String s = msg.toLowerCase();
+        if (s.contains("amanha")) return PromptKind.TOMORROW;
+        if (s.contains("semana")) return PromptKind.WEEK;
+        return PromptKind.NOW;
     }
 
-    private void setState(ConvKey key, State state) {
-        SESSIONS.put(key, new Session(state, Instant.now().toEpochMilli() + TIMEOUT_MS));
+    private void handleNow(MessageReceivedEvent event, String city) {
+        try {
+            Place p = weather.geocodeOne(city);
+            GeoWeatherService.Now now = weather.weatherNow(p);
+            String out = "agora em " + now.nome + "\n" +
+                    "temperatura: " + fmt(now.tempC) + "°c\n" +
+                    "vento: " + Math.round(now.windKmh) + " km/h\n" +
+                    "hora local: " + now.time + "\n" +
+                    "ps: !tempo salvar <cidade> | !tempo amanha | !tempo semana";
+            event.getChannel().sendMessage(out).queue();
+            System.out.println("[debug] tempo agora: " + p.nome);
+        } catch (Exception e) {
+            event.getChannel().sendMessage("nao achei essa cidade. tenta escrever diferente (tipo: cidade, estado)").queue();
+            System.out.println("[debug] erro now: " + e.getMessage());
+        }
     }
+
+    private void handleTomorrow(MessageReceivedEvent event, String city) {
+        try {
+            Place p = weather.geocodeOne(city);
+            Day d = weather.weatherTomorrow(p);
+            String out = "amanha em " + p.nome + "\n" +
+                    "min: " + fmt(d.tMin) + "°c  |  max: " + fmt(d.tMax) + "°c\n" +
+                    "dica: !tempo (agora) | !tempo semana";
+            event.getChannel().sendMessage(out).queue();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handleWeek(MessageReceivedEvent event, String city) {
+        try {
+            Place p = weather.geocodeOne(city);
+            Day[] days = weather.weatherWeek(p);
+            StringBuilder sb = new StringBuilder("previsao da semana em ").append(p.nome).append("\n");
+            for (Day d : days) {
+                sb.append(d.date).append("  min ").append(fmt(d.tMin))
+                        .append("°c  |  max ").append(fmt(d.tMax)).append("°c\n");
+            }
+            sb.append("fonte: open-meteo");
+            event.getChannel().sendMessage(sb.toString()).queue();
+            System.out.println("[debug] tempo semana: " + p.nome);
+        } catch (Exception e) {
+            event.getChannel().sendMessage("nao achei essa cidade. tenta escrever diferente (tipo: cidade, estado)").queue();
+            System.out.println("[debug] erro semana: " + e.getMessage());
+        }
+    }
+
+    private String fmt(double v){ return String.format("%.1f", v); }
+
 
     private static final class Session {
-        final State state;
-        final long expiresAt;
-        Session(State state, long expiresAt) { this.state = state; this.expiresAt = expiresAt; }
+        final State state; final long expiresAt; final PromptKind promptKind;
+        Session(State s, long t, PromptKind pk){ this.state=s; this.expiresAt=t; this.promptKind=pk; }
     }
 
     private static final class ConvKey {
-        final String userId;
-        final String channelId;
-        ConvKey(String userId, String channelId) { this.userId = userId; this.channelId = channelId; }
-        @Override public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof ConvKey)) return false;
-            ConvKey k = (ConvKey) o;
-            return Objects.equals(userId, k.userId) && Objects.equals(channelId, k.channelId);
-        }
-        @Override public int hashCode() { return Objects.hash(userId, channelId); }
+        final String userId, channelId;
+        ConvKey(String u, String c){ this.userId=u; this.channelId=c; }
+        @Override public boolean equals(Object o){ if(this==o)return true; if(!(o instanceof ConvKey))return false;
+            ConvKey k=(ConvKey)o; return Objects.equals(userId,k.userId)&&Objects.equals(channelId,k.channelId); }
+        @Override public int hashCode(){ return Objects.hash(userId,channelId); }
     }
 }

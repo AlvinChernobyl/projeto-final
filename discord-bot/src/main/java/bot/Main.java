@@ -18,7 +18,7 @@ public class Main {
                         GatewayIntent.MESSAGE_CONTENT
                 )
                 .addEventListeners(new MessageListener())
-                .setActivity(Activity.playing("digite !hello"))
+                .setActivity(Activity.playing("!tempo | v0.1"))
                 .build()
                 .awaitReady();
 
