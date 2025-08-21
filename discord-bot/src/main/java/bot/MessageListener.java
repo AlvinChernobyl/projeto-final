@@ -123,27 +123,34 @@ public class MessageListener extends ListenerAdapter {
         try {
             Place p = weather.geocodeOne(city);
             GeoWeatherService.Now now = weather.weatherNow(p);
-            String out = "agora em " + now.nome + "\n" +
-                    "temperatura: " + fmt(now.tempC) + "°c\n" +
-                    "vento: " + Math.round(now.windKmh) + " km/h\n" +
-                    "hora local: " + now.time + "\n" +
-                    "ps: !tempo salvar <cidade> | !tempo amanha | !tempo semana";
+            String out =
+                    "**clima agora — " + now.nome + "**\n" +
+                            "```\n" +
+                            "temperatura : " + String.format("%.1f", now.tempC) + " °c\n" +
+                            "vento       : " + Math.round(now.windKmh) + " km/h\n" +
+                            "hora local  : " + now.time + "\n" +
+                            "```\n" +
+                            "_fonte: open-meteo_  ·  dicas: `!tempo salvar <cidade>`  |  `!tempo amanha`  |  `!tempo semana`";
             event.getChannel().sendMessage(out).queue();
             System.out.println("[debug] tempo agora: " + p.nome);
         } catch (Exception e) {
-            event.getChannel().sendMessage("nao achei essa cidade. tenta escrever diferente (tipo: cidade, estado)").queue();
-            System.out.println("[debug] erro now: " + e.getMessage());
         }
+
     }
 
     private void handleTomorrow(MessageReceivedEvent event, String city) {
         try {
             Place p = weather.geocodeOne(city);
             Day d = weather.weatherTomorrow(p);
-            String out = "amanha em " + p.nome + "\n" +
-                    "min: " + fmt(d.tMin) + "°c  |  max: " + fmt(d.tMax) + "°c\n" +
-                    "dica: !tempo (agora) | !tempo semana";
+            String out =
+                    "**amanhã — " + p.nome + "**\n" +
+                            "```\n" +
+                            "mínima : " + String.format("%.1f", d.tMin) + " °c\n" +
+                            "máxima : " + String.format("%.1f", d.tMax) + " °c\n" +
+                            "```\n" +
+                            "_dica: `!tempo` (agora)  |  `!tempo semana`_";
             event.getChannel().sendMessage(out).queue();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -153,13 +160,15 @@ public class MessageListener extends ListenerAdapter {
         try {
             Place p = weather.geocodeOne(city);
             Day[] days = weather.weatherWeek(p);
-            StringBuilder sb = new StringBuilder("previsao da semana em ").append(p.nome).append("\n");
+            StringBuilder sb = new StringBuilder("**semana — ").append(p.nome).append("**\n```\n");
+            sb.append("dia         min   max\n");
+            sb.append("---------------------\n");
             for (Day d : days) {
-                sb.append(d.date).append("  min ").append(fmt(d.tMin))
-                        .append("°c  |  max ").append(fmt(d.tMax)).append("°c\n");
+                sb.append(String.format("%-11s %5.1f %5.1f\n", d.date, d.tMin, d.tMax));
             }
-            sb.append("fonte: open-meteo");
+            sb.append("```\n_fonte: open-meteo_");
             event.getChannel().sendMessage(sb.toString()).queue();
+
             System.out.println("[debug] tempo semana: " + p.nome);
         } catch (Exception e) {
             event.getChannel().sendMessage("nao achei essa cidade. tenta escrever diferente (tipo: cidade, estado)").queue();
