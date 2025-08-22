@@ -3,13 +3,17 @@ package neocamp_teamcubation.projeto_final.controller;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import neocamp_teamcubation.projeto_final.DTO.ClubeCepDTO;
+import neocamp_teamcubation.projeto_final.DTO.ViaCepDTO;
 import neocamp_teamcubation.projeto_final.entity.Clube;
 import neocamp_teamcubation.projeto_final.service.ClubeService;
+import neocamp_teamcubation.projeto_final.service.ViaCepService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/clubes")
@@ -17,6 +21,7 @@ import java.util.List;
 public class ClubeController {
 
     private final ClubeService clubeService;
+    private final ViaCepService viaCepService;
 
     @GetMapping
     public ResponseEntity<List<Clube>> listarClubes(@RequestParam(required = false) String nome) {
@@ -64,4 +69,15 @@ public class ClubeController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
     }
+
+    @PostMapping("/cep")
+    public ResponseEntity<?> cadastrarComCep(@RequestBody ClubeCepDTO dto) {
+        try {
+            Clube clube = clubeService.cadastrarComCep(dto);
+            return ResponseEntity.ok(clube);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

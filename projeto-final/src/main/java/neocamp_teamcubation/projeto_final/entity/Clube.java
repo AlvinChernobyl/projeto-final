@@ -1,5 +1,6 @@
 package neocamp_teamcubation.projeto_final.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -13,10 +14,26 @@ import java.time.LocalDate;
         @UniqueConstraint(columnNames = {"nome", "sigla_estado"})
 })
 
+@JsonPropertyOrder({
+        "id",
+        "nome",
+        "siglaEstado",
+        "dataCriacao",
+        "logradouro",
+        "bairro",
+        "cidade",
+        "ativo"
+})
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class Clube {
+
+    private String logradouro;
+    private String bairro;
+    private String cidade;
+
     @Id
     @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)

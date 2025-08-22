@@ -1,5 +1,6 @@
 package neocamp_teamcubation.projeto_final.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,6 +11,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "estadios", uniqueConstraints = {
         @UniqueConstraint(columnNames = "name")
+})
+
+@JsonPropertyOrder({
+        "id",
+        "nome",
+        "siglaEstado",
+        "logradouro",
+        "bairro",
+        "cidade",
+        "ativo"
 })
 
 @Data
