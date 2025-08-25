@@ -2,7 +2,8 @@ package neocamp_teamcubation.projeto_final.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import neocamp_teamcubation.projeto_final.entity.Clube;
-import neocamp_teamcubation.projeto_final.repository.ClubeRepo;
+import neocamp_teamcubation.projeto_final.adapter.out.persistence.springdata.ClubeRepo;
+import neocamp_teamcubation.projeto_final.usecase.ClubeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
