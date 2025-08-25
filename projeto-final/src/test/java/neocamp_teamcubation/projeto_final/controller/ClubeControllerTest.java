@@ -1,15 +1,14 @@
 package neocamp_teamcubation.projeto_final.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import neocamp_teamcubation.projeto_final.adapter.in.web.ClubeController;
 import neocamp_teamcubation.projeto_final.entity.Clube;
-import neocamp_teamcubation.projeto_final.service.ClubeService;
+import neocamp_teamcubation.projeto_final.usecase.ClubeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;

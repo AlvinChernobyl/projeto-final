@@ -1,7 +1,8 @@
 package neocamp_teamcubation.projeto_final.service;
 import jakarta.persistence.EntityNotFoundException;
 import neocamp_teamcubation.projeto_final.entity.Estadio;
-import neocamp_teamcubation.projeto_final.repository.EstadioRepo;
+import neocamp_teamcubation.projeto_final.adapter.out.persistence.springdata.EstadioRepo;
+import neocamp_teamcubation.projeto_final.usecase.EstadioService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
